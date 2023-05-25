@@ -16,14 +16,6 @@ const DASH_TIME = 7;
 let mouseX = 0;
 let mouseY = 0;
 
-let player = {
-    x: 100,
-    y: 890,
-    velocityX: 0,
-    velocityY: 0,
-    size: 20
-};
-
 let canJump = false;
 let canDash = false;
 let canWallJump = false;
@@ -71,10 +63,16 @@ let walls = [
             y2: 550
         },
         {
-            x1: 0,
+            x1: 50,
             y1: 300,
             x2: 200,
             y2: 350
+        },
+        {
+            x1: 0,
+            y1: 100,
+            x2: 50,
+            y2: 250
         },
     ]
 ];
@@ -89,10 +87,30 @@ let orbs = [
             y: 375
         },
     ]
-]
+];
+let ends = [
+    {
+        x: 0,
+        y: 0
+    }
+];
+let spawns = [
+    {
+        x: 100,
+        y: 890
+    }
+];
 let levelIndex = 0;
 let trailX = 0;
 let trailY = 0;
+
+let player = {
+    x: spawns[levelIndex].x,
+    y: spawns[levelIndex].y,
+    velocityX: 0,
+    velocityY: 0,
+    size: 20
+};
 
 //#endregion
 
@@ -156,8 +174,8 @@ function loop() {
     //#region DEATH
     if (player.y > 1000) {
         player = {
-            x: 100,
-            y: 890,
+            x: spawns[levelIndex].x,
+            y: spawns[levelIndex].y,
             velocityX: 0,
             velocityY: 0,
             size: 20
@@ -186,11 +204,15 @@ function loop() {
         ctx.strokeRect(walls[levelIndex][i].x1, walls[levelIndex][i].y1, walls[levelIndex][i].x2 - walls[levelIndex][i].x1, walls[levelIndex][i].y2 - walls[levelIndex][i].y1);
     }
 
+    // orbs
     ctx.fillStyle = "green";
     for (let i = 0; i < orbs[levelIndex].length; i++) {
         ctx.fillRect(orbs[levelIndex][i].x - 5, orbs[levelIndex][i].y - 5, 10, 10);
     }
-    // orbs
+
+    // ends
+    ctx.fillStyle = "blue";
+    ctx.fillRect(ends[levelIndex].x - 5, ends[levelIndex].y - 5, 10, 10);
     //#endregion
     requestAnimationFrame(loop);
 }
