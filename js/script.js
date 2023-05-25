@@ -9,13 +9,10 @@ const JUMP_FORCE = 10;
 const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
 const DASH_TIME = 7;
+const EFFECT_DISTANCE = 50;
 //#endregion
 
 //#region VARIABLES
-// souris
-let mouseX = 0;
-let mouseY = 0;
-
 let canJump = false;
 let canDash = false;
 let canWallJump = false;
@@ -23,6 +20,7 @@ let jumpSide = 1;
 let trailTime = 0;
 let dashSize = DASH_SIZE;
 let started = false;
+let ended = false;
 
 let walls = [
     [
@@ -90,8 +88,8 @@ let orbs = [
 ];
 let ends = [
     {
-        x: 0,
-        y: 0
+        x: 200,
+        y: 100
     }
 ];
 let spawns = [
@@ -125,7 +123,6 @@ function loop() {
     canvas.height = 1000;
 
     //#region COLLISONS
-    let canMoveDown = true;
     let bottomDis = player.velocityY;
     canJump = false;
     for (let i = 0; i < walls[levelIndex].length; i++) {
@@ -156,7 +153,7 @@ function loop() {
         }
     }
     for (let i = 0; i < orbs[levelIndex].length; i++) {
-        if (Distance(orbs[levelIndex][i].x, orbs[levelIndex][i].y, player.x, player.y) <= player.size * 2) {
+        if (Distance(orbs[levelIndex][i].x, orbs[levelIndex][i].y, player.x, player.y) <= EFFECT_DISTANCE) {
             canJump = true;
             canDash = true;
         }
@@ -164,7 +161,7 @@ function loop() {
     //#endregion
 
     //#endregion MOVE PLAYER
-    if (trailTime === 0) {
+    if (trailTime === 0 && !ended) {
         player.x += player.velocityX;
         player.y += bottomDis;
         player.velocityY += GRAVITY_FORCE;
@@ -182,6 +179,12 @@ function loop() {
         };
         started = false;
         jumpSide = 1;
+    }
+    //#endregion
+
+    //#region WIN
+    if (Distance(ends[levelIndex].x, ends[levelIndex].y, player.x, player.y) <= EFFECT_DISTANCE) {
+        ended = true;
     }
     //#endregion
 
@@ -216,11 +219,6 @@ function loop() {
     //#endregion
     requestAnimationFrame(loop);
 }
-
-document.addEventListener("mousemove", (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-});
 
 document.addEventListener("keydown", (e) => {
     if (e.code === "Space") {
