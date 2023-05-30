@@ -10,6 +10,7 @@ const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
 const DASH_TIME = 7;
 const EFFECT_DISTANCE = 50;
+const DRAW_HITBOXES = false;
 //#endregion
 
 //#region VARIABLES
@@ -25,7 +26,7 @@ let ended = false;
 let walls = [
     [
         {
-            x1: 25,
+            x1: 0,
             y1: 900,
             x2: 250,
             y2: 1000
@@ -37,9 +38,9 @@ let walls = [
             y2: 850
         },
         {
-            x1: 175,
+            x1: 200,
             y1: 650,
-            x2: 225,
+            x2: 250,
             y2: 750
         },
         {
@@ -78,11 +79,11 @@ let orbs = [
     [
         {
             x: 500,
-            y: 730
+            y: 700
         },
         {
-            x: 390,
-            y: 375
+            x: 400,
+            y: 350
         },
     ]
 ];
@@ -109,6 +110,8 @@ let player = {
     velocityY: 0,
     size: 20
 };
+
+let background = new Image();
 
 //#endregion
 
@@ -193,6 +196,9 @@ function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "red";
     ctx.strokeStyle = "red";
+
+    background.src = "./images/levels/level" + levelIndex + ".png";
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     
     // player
     if (trailTime > 0) {
@@ -202,20 +208,22 @@ function loop() {
         ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
     }
     
-    // walls
-    for (let i = 0; i < walls[levelIndex].length; i++) {
-        ctx.strokeRect(walls[levelIndex][i].x1, walls[levelIndex][i].y1, walls[levelIndex][i].x2 - walls[levelIndex][i].x1, walls[levelIndex][i].y2 - walls[levelIndex][i].y1);
-    }
+    if (DRAW_HITBOXES) {
+        // walls
+        for (let i = 0; i < walls[levelIndex].length; i++) {
+            ctx.strokeRect(walls[levelIndex][i].x1, walls[levelIndex][i].y1, walls[levelIndex][i].x2 - walls[levelIndex][i].x1, walls[levelIndex][i].y2 - walls[levelIndex][i].y1);
+        }
 
-    // orbs
-    ctx.fillStyle = "green";
-    for (let i = 0; i < orbs[levelIndex].length; i++) {
-        ctx.fillRect(orbs[levelIndex][i].x - 5, orbs[levelIndex][i].y - 5, 10, 10);
-    }
+        // orbs
+        ctx.fillStyle = "green";
+        for (let i = 0; i < orbs[levelIndex].length; i++) {
+            ctx.fillRect(orbs[levelIndex][i].x - 5, orbs[levelIndex][i].y - 5, 10, 10);
+        }
 
-    // ends
-    ctx.fillStyle = "blue";
-    ctx.fillRect(ends[levelIndex].x - 5, ends[levelIndex].y - 5, 10, 10);
+        // ends
+        ctx.fillStyle = "blue";
+        ctx.fillRect(ends[levelIndex].x - 5, ends[levelIndex].y - 5, 10, 10);
+    }
     //#endregion
     requestAnimationFrame(loop);
 }
