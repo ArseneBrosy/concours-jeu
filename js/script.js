@@ -10,7 +10,7 @@ const PLAYER_SPEED = 6;
 const JUMP_FORCE = 10;
 const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
-const DASH_TIME = 7;
+const DASH_TIME = 5;
 const EFFECT_DISTANCE = 50;
 const DRAW_HITBOXES = true;
 const DRAW_LEVEL = false;
@@ -19,13 +19,12 @@ const DRAW_LEVEL = false;
 //#region VARIABLES
 let canJump = false;
 let canDash = false;
-let jumpSide = 1;
 let trailTime = 0;
 let dashSize = DASH_SIZE;
 let started = false;
 let ended = false;
 
-let levelIndex = 0;
+let levelIndex = 4;
 let trailX = 0;
 let trailY = 0;
 
@@ -36,6 +35,7 @@ let player = {
     velocityY: 0,
     size: 20
 };
+let jumpSide = levelsJSON[levelIndex].dir;
 
 let background = new Image();
 
@@ -106,7 +106,7 @@ function loop() {
             size: 20
         };
         started = false;
-        jumpSide = 1;
+        jumpSide = levelsJSON[levelIndex].dir;
     }
     //#endregion
 
@@ -123,7 +123,7 @@ function loop() {
         };
         started = false;
         ended = false;
-        jumpSide = 1;
+        jumpSide = levelsJSON[levelIndex].dir;
     }
     //#endregion
 
