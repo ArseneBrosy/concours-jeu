@@ -12,8 +12,9 @@ const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
 const DASH_TIME = 5;
 const EFFECT_DISTANCE = 50;
-const DRAW_HITBOXES = true;
-const DRAW_LEVEL = false;
+const DRAW_GRID = false;
+const DRAW_HITBOXES = false;
+const DRAW_LEVEL = true;
 //#endregion
 
 //#region VARIABLES
@@ -24,7 +25,7 @@ let dashSize = DASH_SIZE;
 let started = false;
 let ended = false;
 
-let levelIndex = 4;
+let levelIndex = 0;
 let trailX = 0;
 let trailY = 0;
 
@@ -130,15 +131,26 @@ function loop() {
     //#region DRAW
     // clear
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "red";
     ctx.strokeStyle = "red";
 
     if (DRAW_LEVEL) {
         background.src = "./images/levels/level" + levelIndex + ".png";
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     }
+
+    if (DRAW_GRID) {
+        ctx.fillStyle = "grey";
+        for (let i = 0; i <= canvas.width; i+= 50) {
+            ctx.fillRect(i, 0, 1, canvas.height);
+        }
+        for (let i = 0; i <= canvas.width; i+= 50) {
+            ctx.fillRect(0, i, canvas.width, 1);
+        }
+    }
     
     // player
+    ctx.fillStyle = "red";
+    ctx.lineWidth = 5;
     if (trailTime > 0) {
         trailTime --;
         ctx.fillRect(trailX + dashSize * (DASH_TIME - trailTime) / DASH_TIME * jumpSide, trailY, player.size, player.size);
