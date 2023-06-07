@@ -12,8 +12,8 @@ const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
 const DASH_TIME = 5;
 const EFFECT_DISTANCE = 50;
-const DRAW_GRID = false;
-const DRAW_HITBOXES = false;
+const DRAW_GRID = 1;
+const DRAW_HITBOXES = 1;
 const DRAW_LEVEL = true;
 //#endregion
 
@@ -25,7 +25,7 @@ let dashSize = DASH_SIZE;
 let started = false;
 let ended = false;
 
-let levelIndex = 0;
+let levelIndex = 5;
 let trailX = 0;
 let trailY = 0;
 
