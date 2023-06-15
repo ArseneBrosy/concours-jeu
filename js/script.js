@@ -40,6 +40,31 @@ const ANIMATIONS = [
         name: "idle",
         size: 4,
         speed: 10
+    },
+    {
+        name: "run",
+        size: 6,
+        speed: 5
+    },
+    {
+        name: "jump_start",
+        size: 2,
+        speed: 3
+    },
+    {
+        name: "jump_air",
+        size: 1,
+        speed: 1
+    },
+    {
+        name: "jump_air_down",
+        size: 2,
+        speed: 3
+    },
+    {
+        name: "jump_end",
+        size: 1,
+        speed: 1
     }
 ]
 
@@ -76,6 +101,11 @@ function loop() {
         if (actualBottomDis > -player.velocityY && actualBottomDis < bottomDis && levelsJSON[levelIndex].walls[i].x1 < player.x + player.size / 2 && levelsJSON[levelIndex].walls[i].x2 > player.x - player.size / 2) {
             bottomDis = actualBottomDis;
             player.velocityY = 0;
+            if (player.velocityX === 0) {
+                player.animation = 0;
+            } else {
+                player.animation = 1;
+            }
             canJump = true;
             canDash = true;
         }
@@ -83,6 +113,7 @@ function loop() {
         if (player.velocityX >= 0 && player.x + player.size/2 + player.velocityX >= levelsJSON[levelIndex].walls[i].x1 && player.x + player.size/2 <= levelsJSON[levelIndex].walls[i].x1 && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
             player.x += levelsJSON[levelIndex].walls[i].x1 - (player.x + player.size/2);
             player.velocityX = 0;
+            player.animation = 0;
             jumpSide = -1;
             canJump = true;
             canDash = true;
@@ -91,6 +122,7 @@ function loop() {
         if (player.velocityX <= 0 && player.x - player.size/2 + player.velocityX <= levelsJSON[levelIndex].walls[i].x2 && player.x - player.size/2 >= levelsJSON[levelIndex].walls[i].x2 && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
             player.x -= (player.x - player.size/2) - levelsJSON[levelIndex].walls[i].x2;
             player.velocityX = 0;
+            player.animation = 0;
             jumpSide = 1;
             canJump = true;
             canDash = true;
@@ -109,6 +141,13 @@ function loop() {
         player.x += player.velocityX;
         player.y += bottomDis;
         player.velocityY += GRAVITY_FORCE;
+    }
+    //#endregion
+
+    //#region ANIMATIONS
+    if (player.animation == 2 && globalAnimationIndex % ANIMATIONS[2].size == ANIMATIONS[2].size - 1) {
+        player.animation = 3;
+        globalAnimationIndex = 0;
     }
     //#endregion
 
@@ -170,10 +209,10 @@ function loop() {
     ctx.lineWidth = 5;
     if (trailTime > 0) {
         trailTime --;
-        ctx.fillRect(trailX + dashSize * (DASH_TIME - trailTime) / DASH_TIME * jumpSide, trailY, player.size, player.size);
+        playerSprite.src = "../images/player/jump_air/0" + (jumpSide == -1 ? "flip" : "") + ".png";
+        ctx.drawImage(playerSprite, trailX + dashSize * (DASH_TIME - trailTime) / DASH_TIME * jumpSide, trailY, player.size, player.size);
     } else {
         playerSprite.src = "../images/player/" + ANIMATIONS[player.animation].name + "/" + (globalAnimationIndex % ANIMATIONS[player.animation].size) + (jumpSide == -1 ? "flip" : "") + ".png";
-        console.log(playerSprite.src);
         ctx.drawImage(playerSprite, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
     }    
     
@@ -207,9 +246,13 @@ document.addEventListener("keydown", (e) => {
         if (canJump) {
             if (player.velocityX === 0) {
                 player.velocityX = PLAYER_SPEED * jumpSide;
+                player.animation = 1;
+                globalAnimationIndex = 0;
             }
             if (started) {
                 player.velocityY = -JUMP_FORCE;
+                player.animation = 2;
+                globalAnimationIndex = 0;
             } else {
                 started = true;
             }
