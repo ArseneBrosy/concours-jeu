@@ -5,6 +5,9 @@ import levelsJSON from "../json/levels.json" assert {type: "json"};
 let canvas = document.getElementById("game");
 let ctx = canvas.getContext("2d");
 
+let playerSprite = new Image();
+playerSprite.src = "./images/player/run/tile0.png"
+
 //#region CONSTANTES
 const PLAYER_SPEED = 6;
 const JUMP_FORCE = 10;
@@ -12,8 +15,8 @@ const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
 const DASH_TIME = 5;
 const EFFECT_DISTANCE = 50;
-const DRAW_GRID = 1;
-const DRAW_HITBOXES = 1;
+const DRAW_GRID = 0;
+const DRAW_HITBOXES = 0;
 const DRAW_LEVEL = true;
 //#endregion
 
@@ -25,16 +28,28 @@ let dashSize = DASH_SIZE;
 let started = false;
 let ended = false;
 
-let levelIndex = 5;
+let levelIndex = 0;
 let trailX = 0;
 let trailY = 0;
+
+let globalAnimationIndex = 0;
+let globalAnimationIndexCounter = 0;
+
+const ANIMATIONS = [
+    {
+        name: "idle",
+        size: 4,
+        speed: 10
+    }
+]
 
 let player = {
     x: levelsJSON[levelIndex].spawn.x,
     y: levelsJSON[levelIndex].spawn.y,
     velocityX: 0,
     velocityY: 0,
-    size: 20
+    size: 40,
+    animation: 0
 };
 let jumpSide = levelsJSON[levelIndex].dir;
 
@@ -104,7 +119,8 @@ function loop() {
             y: levelsJSON[levelIndex].spawn.y,
             velocityX: 0,
             velocityY: 0,
-            size: 20
+            size: 40,
+            animation: 0
         };
         started = false;
         jumpSide = levelsJSON[levelIndex].dir;
@@ -120,7 +136,8 @@ function loop() {
             y: levelsJSON[levelIndex].spawn.y,
             velocityX: 0,
             velocityY: 0,
-            size: 20
+            size: 40,
+            animation: 0
         };
         started = false;
         ended = false;
@@ -155,8 +172,10 @@ function loop() {
         trailTime --;
         ctx.fillRect(trailX + dashSize * (DASH_TIME - trailTime) / DASH_TIME * jumpSide, trailY, player.size, player.size);
     } else {
-        ctx.fillRect(player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
-    }
+        playerSprite.src = "../images/player/" + ANIMATIONS[player.animation].name + "/" + (globalAnimationIndex % ANIMATIONS[player.animation].size) + (jumpSide == -1 ? "flip" : "") + ".png";
+        console.log(playerSprite.src);
+        ctx.drawImage(playerSprite, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
+    }    
     
     if (DRAW_HITBOXES) {
         // walls
@@ -175,6 +194,11 @@ function loop() {
         ctx.fillRect(levelsJSON[levelIndex].end.x - 5, levelsJSON[levelIndex].end.y - 5, 10, 10);
     }
     //#endregion
+    globalAnimationIndexCounter ++;
+    if (globalAnimationIndexCounter >= ANIMATIONS[player.animation].speed) {
+        globalAnimationIndexCounter = 0;
+        globalAnimationIndex ++;
+    }
     requestAnimationFrame(loop);
 }
 
