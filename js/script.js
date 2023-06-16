@@ -1,7 +1,7 @@
 // Jeu de tir
 // by Arsène Brosy
 import levelsJSON from "../json/levels.json" assert {type: "json"};
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 let canvas = document.getElementById("game");
 let ctx = canvas.getContext("2d");
@@ -165,7 +165,7 @@ function loop() {
     //#endregion
 
     //#region MOVE PLAYER
-    if (trailTime === 0 && !ended) {
+    if (trailTime === 0 && !ended && !winAnimation && !deathAnimation) {
         player.x += player.velocityX;
         player.y += bottomDis;
         player.velocityY += GRAVITY_FORCE;
