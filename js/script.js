@@ -229,12 +229,7 @@ function loop() {
     //#region WIN
     if (Distance(levelsJSON[levelIndex].end.x, levelsJSON[levelIndex].end.y, player.x, player.y) <= EFFECT_DISTANCE && !winAnimation) {
         ended = true;
-        winAnimation = true;
-        canvas.style.clipPath = `circle(${winCircleSize}% at ${player.x / 10}% ${player.y / 10}%)`;
-        winAnimationStarted = new Date().getTime();
-        player.velocityX = 0;
-        player.animation = 0;
-        setTimeout(() => {
+        if (DEBUG_MODE) {
             levelIndex++;
             player = {
                 x: levelsJSON[levelIndex].spawn.x,
@@ -244,11 +239,28 @@ function loop() {
                 size: 40,
                 animation: 0
             };
-            started = false;
-            ended = false;
-            jumpSide = levelsJSON[levelIndex].dir;
-            winAnimation = false;
-        }, WIN_ANIMATION_TIME);
+        } else {
+            winAnimation = true;
+            canvas.style.clipPath = `circle(${winCircleSize}% at ${player.x / 10}% ${player.y / 10}%)`;
+            winAnimationStarted = new Date().getTime();
+            player.velocityX = 0;
+            player.animation = 0;
+            setTimeout(() => {
+                levelIndex++;
+                player = {
+                    x: levelsJSON[levelIndex].spawn.x,
+                    y: levelsJSON[levelIndex].spawn.y,
+                    velocityX: 0,
+                    velocityY: 0,
+                    size: 40,
+                    animation: 0
+                };
+                winAnimation = false;
+            }, WIN_ANIMATION_TIME);
+        }
+        started = false;
+        ended = false;
+        jumpSide = levelsJSON[levelIndex].dir;
     }
     if (winAnimation) {
         winCircleSize = parseInt(141 * (1 - ((new Date().getTime() - winAnimationStarted) / WIN_ANIMATION_TIME)));

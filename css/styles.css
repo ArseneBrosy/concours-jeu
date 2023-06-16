@@ -26,6 +26,14 @@ canvas {
     border: 1px solid black;
 }
 
+#backcanvas {
+    z-index: -1;
+    position: absolute;
+    height: 95%;
+    aspect-ratio: 1;
+    background-color: black;
+}
+
 @keyframes death {
     0% {
         bottom: 0;
