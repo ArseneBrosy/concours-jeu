@@ -1,6 +1,7 @@
 // Jeu de tir
 // by Arsène Brosy
 import levelsJSON from "../json/levels.json" assert {type: "json"};
+const DEBUG_MODE = false;
 
 let canvas = document.getElementById("game");
 let ctx = canvas.getContext("2d");
@@ -15,9 +16,9 @@ const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
 const DASH_TIME = 7;
 const EFFECT_DISTANCE = 50;
-const DEBUG_MODE = false;
 const WIN_ANIMATION_TIME = 700;
 const WIN_ANIMATION_DELAY = 700;
+const GAME_STARTED = new Date().getTime();
 const transition_sprite = new Image();
 transition_sprite.src = "../images/GUI/transition.png";
 //#endregion
@@ -255,6 +256,7 @@ function loop() {
                     size: 40,
                     animation: 0
                 };
+                jumpSide = levelsJSON[levelIndex].dir;
                 winAnimation = false;
             }, WIN_ANIMATION_TIME);
         }
@@ -279,6 +281,7 @@ function loop() {
     background.src = "./images/levels/level" + levelIndex + ".png";
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
+    // player
     if (trailTime > 0) {
         trailTime --;
         playerSprite.src = "../images/player/jump_air/0" + (jumpSide == -1 ? "flip" : "") + ".png";
@@ -287,6 +290,13 @@ function loop() {
         playerSprite.src = "../images/player/" + ANIMATIONS[player.animation].name + "/" + (globalAnimationIndex % ANIMATIONS[player.animation].size) + (jumpSide == -1 ? "flip" : "") + ".png";
         ctx.drawImage(playerSprite, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
     }
+
+    // timer
+    let gameTime = new Date().getTime() - GAME_STARTED;
+    let minutes = parseInt(gameTime / 60000);
+    let seconds = parseInt(gameTime / 1000) % 60;
+    let decimals = parseInt(gameTime / 100) % 10;
+    document.getElementById("timer").innerHTML = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${decimals}`
 
     if (DEBUG_MODE) {
         // player

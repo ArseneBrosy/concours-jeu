@@ -101,3 +101,12 @@ canvas {
     animation: increase 1.8s forwards;
     color: white;
 }
+
+#timer {
+    position: absolute;
+    height: 95%;
+    aspect-ratio: 1;
+    font-size: 3rem;
+    text-align: center;
+    color: white;
+}
