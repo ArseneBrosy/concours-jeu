@@ -13,24 +13,24 @@ const PLAYER_SPEED = 6;
 const JUMP_FORCE = 10;
 const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
-const DASH_TIME = 5;
+const DASH_TIME = 7;
 const EFFECT_DISTANCE = 50;
-const DRAW_GRID = 0;
-const DRAW_HITBOXES = 0;
-const DRAW_LEVEL = 1;
+const DEBUG_MODE = true;
 //#endregion
 
 //#region VARIABLES
 let canJump = false;
 let canDash = false;
 let isOnWall = false;
-let wasOnWall = 0;
 let trailTime = 0;
 let dashSize = DASH_SIZE;
 let started = false;
 let ended = false;
 
-let levelIndex = 2;
+let deaths = 0;
+let deathAnimation = false;
+
+let levelIndex = 5;
 let trailX = 0;
 let trailY = 0;
 
@@ -146,7 +146,7 @@ function loop() {
     }
     //#endregion
 
-    //#endregion MOVE PLAYER
+    //#region MOVE PLAYER
     if (trailTime === 0 && !ended) {
         player.x += player.velocityX;
         player.y += bottomDis;
@@ -165,15 +165,39 @@ function loop() {
     //#endregion
 
     //#region DEATH
-    if (player.y > 1000) {
-        player = {
-            x: levelsJSON[levelIndex].spawn.x,
-            y: levelsJSON[levelIndex].spawn.y,
-            velocityX: 0,
-            velocityY: 0,
-            size: 40,
-            animation: 0
-        };
+    if ((player.y > 1000 || player.y < 0 || player.x > 1000 || player.x < 0) && !deathAnimation) {
+        deaths ++;
+        if (DEBUG_MODE) {
+            player = {
+                x: levelsJSON[levelIndex].spawn.x,
+                y: levelsJSON[levelIndex].spawn.y,
+                velocityX: 0,
+                velocityY: 0,
+                size: 40,
+                animation: 0
+            };
+        } else {
+            deathAnimation = true;
+            document.querySelector("#deathtexttransparent").innerHTML = " ";
+            for (let i = 0; i < deaths.toString().length; i++) {
+                document.querySelector("#deathtexttransparent").innerHTML += "-";
+            }
+            document.querySelector("#deathtextbefore").innerHTML = deaths - 1;
+            document.querySelector("#deathtextafter").innerHTML = deaths;
+            document.getElementById("blur").classList.add("active");
+            setTimeout(() => {
+                document.getElementById("blur").classList.remove("active");
+                deathAnimation = false;
+                player = {
+                    x: levelsJSON[levelIndex].spawn.x,
+                    y: levelsJSON[levelIndex].spawn.y,
+                    velocityX: 0,
+                    velocityY: 0,
+                    size: 40,
+                    animation: 0
+                };
+            }, 1800);
+        }
         started = false;
         jumpSide = levelsJSON[levelIndex].dir;
     }
@@ -202,12 +226,10 @@ function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.strokeStyle = "red";
 
-    if (DRAW_LEVEL) {
-        background.src = "./images/levels/level" + levelIndex + ".png";
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    }
+    background.src = "./images/levels/level" + levelIndex + ".png";
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    if (DRAW_GRID) {
+    if (DEBUG_MODE) {
         ctx.fillStyle = "grey";
         for (let i = 0; i <= canvas.width; i+= 50) {
             ctx.fillRect(i, 0, 1, canvas.height);
@@ -229,7 +251,7 @@ function loop() {
         ctx.drawImage(playerSprite, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
     }    
     
-    if (DRAW_HITBOXES) {
+    if (DEBUG_MODE) {
         // walls
         for (let i = 0; i < levelsJSON[levelIndex].walls.length; i++) {
             ctx.strokeRect(levelsJSON[levelIndex].walls[i].x1, levelsJSON[levelIndex].walls[i].y1, levelsJSON[levelIndex].walls[i].x2 - levelsJSON[levelIndex].walls[i].x1, levelsJSON[levelIndex].walls[i].y2 - levelsJSON[levelIndex].walls[i].y1);
@@ -255,7 +277,7 @@ function loop() {
 }
 
 document.addEventListener("keydown", (e) => {
-    if (e.code === "Space") {
+    if (e.code === "Space" && !deathAnimation) {
         if (canJump) {
             if (player.velocityX === 0) {
                 player.velocityX = PLAYER_SPEED * jumpSide;

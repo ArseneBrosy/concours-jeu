@@ -1,10 +1,15 @@
+@font-face {
+    font-family: upheaval;
+    src: url(upheaval/upheavtt.ttf);
+  }
+
 * {
     margin: 0;
     padding: 0;
     border: 0;
 
     overflow: hidden;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: upheaval, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
@@ -19,4 +24,72 @@ canvas {
     height: 95%;
     aspect-ratio: 1;
     border: 1px solid black;
+}
+
+@keyframes death {
+    0% {
+        bottom: 0;
+    }
+    27% {
+        bottom: 65%;
+    }
+    85% {
+        bottom: 65%;
+    }
+    100% {
+        bottom: 100%;
+    }
+}
+
+@keyframes increase {
+    0% {
+        transform: translateY(-9.2vh);
+    }
+    39% {
+        transform: translateY(-9.2vh);
+    }
+    61% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+#blur {
+    position: absolute;
+    height: 95%;
+    aspect-ratio: 1;
+    backdrop-filter: blur(2px);
+    display: none;
+}
+
+#blur.active {
+    display: block;
+}
+
+#deathtext {
+    position: absolute;
+    color: transparent;
+    font-size: 10vh;
+    display: flex;
+    animation: death 1.8s forwards;
+    bottom: 65%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#deathtext img {
+    height: 10vh;
+    aspect-ratio: 17/20;
+    margin-right: 5px;
+}
+
+#counter {
+    position: absolute;
+    display: block;
+    right: 0;
+    transform: translateY(-9.2vh);
+    animation: increase 1.8s forwards;
+    color: white;
 }
