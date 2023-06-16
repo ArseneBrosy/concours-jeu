@@ -1,7 +1,7 @@
 // Jeu de tir
 // by Arsène Brosy
 import levelsJSON from "../json/levels.json" assert {type: "json"};
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 let canvas = document.getElementById("game");
 let ctx = canvas.getContext("2d");
@@ -86,6 +86,8 @@ const ANIMATIONS = [
 let player = {
     x: levelsJSON[levelIndex].spawn.x,
     y: levelsJSON[levelIndex].spawn.y,
+    px: levelsJSON[levelIndex].spawn.x,
+    py: levelsJSON[levelIndex].spawn.y,
     velocityX: 0,
     velocityY: 0,
     size: 40,
@@ -100,6 +102,14 @@ let background = new Image();
 //#region FUNCTIONS
 function Distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.abs(x1 - x2)**2 + Math.abs(y1 - y2)**2);
+}
+
+function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
+    let uA = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+    let uB = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+
+    // if uA and uB are between 0-1, lines are colliding
+    return (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1);
 }
 //#endregion
 
@@ -195,6 +205,8 @@ function loop() {
             player = {
                 x: levelsJSON[levelIndex].spawn.x,
                 y: levelsJSON[levelIndex].spawn.y,
+                px: levelsJSON[levelIndex].spawn.x,
+                py: levelsJSON[levelIndex].spawn.y,
                 velocityX: 0,
                 velocityY: 0,
                 size: 40,
@@ -215,6 +227,8 @@ function loop() {
                 player = {
                     x: levelsJSON[levelIndex].spawn.x,
                     y: levelsJSON[levelIndex].spawn.y,
+                    px: levelsJSON[levelIndex].spawn.x,
+                    py: levelsJSON[levelIndex].spawn.y,
                     velocityX: 0,
                     velocityY: 0,
                     size: 40,
@@ -228,13 +242,20 @@ function loop() {
     //#endregion
 
     //#region WIN
-    if (Distance(levelsJSON[levelIndex].end.x, levelsJSON[levelIndex].end.y, player.x, player.y) <= EFFECT_DISTANCE && !winAnimation) {
+    let leftLine = lineLine(player.x, player.y, player.px, player.py, levelsJSON[levelIndex].end.x1, levelsJSON[levelIndex].end.y1, levelsJSON[levelIndex].end.x1, levelsJSON[levelIndex].end.y2);
+    let rightLine = lineLine(player.x, player.y, player.px, player.py, levelsJSON[levelIndex].end.x2, levelsJSON[levelIndex].end.y1, levelsJSON[levelIndex].end.x2, levelsJSON[levelIndex].end.y2);
+    let topLine = lineLine(player.x, player.y, player.px, player.py, levelsJSON[levelIndex].end.x1, levelsJSON[levelIndex].end.y1, levelsJSON[levelIndex].end.x2, levelsJSON[levelIndex].end.y1);
+    let bottomLine = lineLine(player.x, player.y, player.px, player.py, levelsJSON[levelIndex].end.x1, levelsJSON[levelIndex].end.y2, levelsJSON[levelIndex].end.x2, levelsJSON[levelIndex].end.y2);
+    let touchEnd = leftLine || rightLine || topLine || bottomLine;
+    if (touchEnd && !winAnimation) {
         ended = true;
         if (DEBUG_MODE) {
             levelIndex++;
             player = {
                 x: levelsJSON[levelIndex].spawn.x,
                 y: levelsJSON[levelIndex].spawn.y,
+                px: levelsJSON[levelIndex].spawn.x,
+                py: levelsJSON[levelIndex].spawn.y,
                 velocityX: 0,
                 velocityY: 0,
                 size: 40,
@@ -251,6 +272,8 @@ function loop() {
                 player = {
                     x: levelsJSON[levelIndex].spawn.x,
                     y: levelsJSON[levelIndex].spawn.y,
+                    px: levelsJSON[levelIndex].spawn.x,
+                    py: levelsJSON[levelIndex].spawn.y,
                     velocityX: 0,
                     velocityY: 0,
                     size: 40,
@@ -324,12 +347,19 @@ function loop() {
         }
 
         // ends
-        ctx.fillStyle = "blue";
-        ctx.fillRect(levelsJSON[levelIndex].end.x - 5, levelsJSON[levelIndex].end.y - 5, 10, 10);
-
+        ctx.strokeStyle = "blue";
+        ctx.strokeRect(levelsJSON[levelIndex].end.x1, levelsJSON[levelIndex].end.y1, levelsJSON[levelIndex].end.x2 - levelsJSON[levelIndex].end.x1, levelsJSON[levelIndex].end.y2 - levelsJSON[levelIndex].end.y1);
+        
         //player
         ctx.fillStyle = "blue"
-        ctx.fillRect(player.x - player.size/2, player.y - player.size/2, player.size, player.size); 
+        ctx.fillRect(player.x - player.size/2, player.y - player.size/2, player.size, player.size);
+        
+        // player line
+        ctx.strokeStyle = "green";
+        ctx.beginPath();
+        ctx.moveTo(player.px, player.py);
+        ctx.lineTo(player.x, player.y);
+        ctx.stroke();
     }
 
     //#endregion
@@ -338,6 +368,8 @@ function loop() {
         globalAnimationIndexCounter = 0;
         globalAnimationIndex ++;
     }
+    player.px = player.x;
+    player.py = player.y;
     requestAnimationFrame(loop);
 }
 
