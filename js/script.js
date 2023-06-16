@@ -1,7 +1,7 @@
 // Jeu de tir
 // by Arsène Brosy
 import levelsJSON from "../json/levels.json" assert {type: "json"};
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 let canvas = document.getElementById("game");
 let ctx = canvas.getContext("2d");
@@ -18,12 +18,12 @@ const DASH_TIME = 7;
 const EFFECT_DISTANCE = 50;
 const WIN_ANIMATION_TIME = 700;
 const WIN_ANIMATION_DELAY = 700;
-const GAME_STARTED = new Date().getTime();
 const transition_sprite = new Image();
 transition_sprite.src = "../images/GUI/transition.png";
 //#endregion
 
 //#region VARIABLES
+let gameStarted = 0;
 let canJump = false;
 let canDash = false;
 let isOnWall = false;
@@ -38,7 +38,7 @@ let winAnimation = false;
 let winCircleSize = 141;
 let winAnimationStarted = 0;
 
-let levelIndex = 0;
+let levelIndex = 7;
 let trailX = 0;
 let trailY = 0;
 
@@ -234,6 +234,7 @@ function loop() {
                     size: 40,
                     animation: 0
                 };
+                jumpSide = levelsJSON[levelIndex].dir;
             }, 1800);
         }
         started = false;
@@ -248,6 +249,7 @@ function loop() {
     let bottomLine = lineLine(player.x, player.y, player.px, player.py, levelsJSON[levelIndex].end.x1, levelsJSON[levelIndex].end.y2, levelsJSON[levelIndex].end.x2, levelsJSON[levelIndex].end.y2);
     let touchEnd = leftLine || rightLine || topLine || bottomLine;
     if (touchEnd && !winAnimation) {
+        console.log(`level ${levelIndex} completed`);
         ended = true;
         if (DEBUG_MODE) {
             levelIndex++;
@@ -315,11 +317,13 @@ function loop() {
     }
 
     // timer
-    let gameTime = new Date().getTime() - GAME_STARTED;
-    let minutes = parseInt(gameTime / 60000);
-    let seconds = parseInt(gameTime / 1000) % 60;
-    let decimals = parseInt(gameTime / 100) % 10;
-    document.getElementById("timer").innerHTML = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${decimals}`
+    if (gameStarted > 0) {
+        let gameTime = new Date().getTime() - gameStarted;
+        let minutes = parseInt(gameTime / 60000);
+        let seconds = parseInt(gameTime / 1000) % 60;
+        let decimals = parseInt(gameTime / 100) % 10;
+        document.getElementById("timer").innerHTML = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${decimals}`
+    }
 
     if (DEBUG_MODE) {
         // player
@@ -387,6 +391,7 @@ document.addEventListener("keydown", (e) => {
                 globalAnimationIndex = 0;
             } else {
                 started = true;
+                gameStarted = new Date().getTime();
             }
         } else if (canDash) {
             trailX = player.x - player.size/2;
