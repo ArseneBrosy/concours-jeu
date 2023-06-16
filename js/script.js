@@ -17,18 +17,20 @@ const DASH_TIME = 5;
 const EFFECT_DISTANCE = 50;
 const DRAW_GRID = 0;
 const DRAW_HITBOXES = 0;
-const DRAW_LEVEL = true;
+const DRAW_LEVEL = 1;
 //#endregion
 
 //#region VARIABLES
 let canJump = false;
 let canDash = false;
+let isOnWall = false;
+let wasOnWall = 0;
 let trailTime = 0;
 let dashSize = DASH_SIZE;
 let started = false;
 let ended = false;
 
-let levelIndex = 0;
+let levelIndex = 2;
 let trailX = 0;
 let trailY = 0;
 
@@ -65,7 +67,12 @@ const ANIMATIONS = [
         name: "jump_end",
         size: 1,
         speed: 1
-    }
+    },
+    {
+        name: "slide",
+        size: 1,
+        speed: 1
+    },
 ]
 
 let player = {
@@ -109,23 +116,26 @@ function loop() {
             canJump = true;
             canDash = true;
         }
+        if (isOnWall > 0 ) { isOnWall--; }
         // right
         if (player.velocityX >= 0 && player.x + player.size/2 + player.velocityX >= levelsJSON[levelIndex].walls[i].x1 && player.x + player.size/2 <= levelsJSON[levelIndex].walls[i].x1 && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
             player.x += levelsJSON[levelIndex].walls[i].x1 - (player.x + player.size/2);
             player.velocityX = 0;
-            player.animation = 0;
+            player.animation = 6;
             jumpSide = -1;
             canJump = true;
             canDash = true;
+            isOnWall = 5;
         }
         // left
         if (player.velocityX <= 0 && player.x - player.size/2 + player.velocityX <= levelsJSON[levelIndex].walls[i].x2 && player.x - player.size/2 >= levelsJSON[levelIndex].walls[i].x2 && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
             player.x -= (player.x - player.size/2) - levelsJSON[levelIndex].walls[i].x2;
             player.velocityX = 0;
-            player.animation = 0;
+            player.animation = 6;
             jumpSide = 1;
             canJump = true;
             canDash = true;
+            isOnWall = 5;
         }
     }
     for (let i = 0; i < levelsJSON[levelIndex].orbs.length; i++) {
@@ -148,6 +158,9 @@ function loop() {
     if (player.animation == 2 && globalAnimationIndex % ANIMATIONS[2].size == ANIMATIONS[2].size - 1) {
         player.animation = 3;
         globalAnimationIndex = 0;
+    }
+    if (player.animation === 6 && isOnWall === 0) {
+        player.animation = 3;
     }
     //#endregion
 
