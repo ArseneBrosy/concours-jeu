@@ -15,7 +15,7 @@ const GRAVITY_FORCE = 0.5;
 const DASH_SIZE = 125;
 const DASH_TIME = 7;
 const EFFECT_DISTANCE = 50;
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 //#endregion
 
 //#region VARIABLES
@@ -30,7 +30,7 @@ let ended = false;
 let deaths = 0;
 let deathAnimation = false;
 
-let levelIndex = 5;
+let levelIndex = 0;
 let trailX = 0;
 let trailY = 0;
 
@@ -229,19 +229,6 @@ function loop() {
     background.src = "./images/levels/level" + levelIndex + ".png";
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    if (DEBUG_MODE) {
-        ctx.fillStyle = "grey";
-        for (let i = 0; i <= canvas.width; i+= 50) {
-            ctx.fillRect(i, 0, 1, canvas.height);
-        }
-        for (let i = 0; i <= canvas.width; i+= 50) {
-            ctx.fillRect(0, i, canvas.width, 1);
-        }
-    }
-    
-    // player
-    ctx.fillStyle = "red";
-    ctx.lineWidth = 5;
     if (trailTime > 0) {
         trailTime --;
         playerSprite.src = "../images/player/jump_air/0" + (jumpSide == -1 ? "flip" : "") + ".png";
@@ -249,9 +236,22 @@ function loop() {
     } else {
         playerSprite.src = "../images/player/" + ANIMATIONS[player.animation].name + "/" + (globalAnimationIndex % ANIMATIONS[player.animation].size) + (jumpSide == -1 ? "flip" : "") + ".png";
         ctx.drawImage(playerSprite, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
-    }    
-    
+    }
+
     if (DEBUG_MODE) {
+        // player
+        ctx.fillStyle = "red";
+        ctx.lineWidth = 5;
+
+        // grid
+        ctx.fillStyle = "grey";
+        for (let i = 0; i <= canvas.width; i+= 50) {
+            ctx.fillRect(i, 0, 1, canvas.height);
+        }
+        for (let i = 0; i <= canvas.width; i+= 50) {
+            ctx.fillRect(0, i, canvas.width, 1);
+        }
+
         // walls
         for (let i = 0; i < levelsJSON[levelIndex].walls.length; i++) {
             ctx.strokeRect(levelsJSON[levelIndex].walls[i].x1, levelsJSON[levelIndex].walls[i].y1, levelsJSON[levelIndex].walls[i].x2 - levelsJSON[levelIndex].walls[i].x1, levelsJSON[levelIndex].walls[i].y2 - levelsJSON[levelIndex].walls[i].y1);
@@ -266,7 +266,12 @@ function loop() {
         // ends
         ctx.fillStyle = "blue";
         ctx.fillRect(levelsJSON[levelIndex].end.x - 5, levelsJSON[levelIndex].end.y - 5, 10, 10);
+
+        //player
+        ctx.fillStyle = "blue"
+        ctx.fillRect(player.x - 10, player.y - 10, 20, 20); 
     }
+
     //#endregion
     globalAnimationIndexCounter ++;
     if (globalAnimationIndexCounter >= ANIMATIONS[player.animation].speed) {
@@ -297,22 +302,24 @@ document.addEventListener("keydown", (e) => {
             dashSize = DASH_SIZE;
             if (jumpSide === 1) {
                 for (let i = 0; i < levelsJSON[levelIndex].walls.length; i++) {
-                    if (levelsJSON[levelIndex].walls[i].x1 > player.x + player.size && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
+                    if (levelsJSON[levelIndex].walls[i].x1 > player.x && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
                         let distance = levelsJSON[levelIndex].walls[i].x1 - (player.x + player.size);
+                        distance = distance < 0 ? 0 : distance;
                         dashSize = distance < dashSize ? distance : dashSize;
                     }
                 }
             } else {
                 for (let i = 0; i < levelsJSON[levelIndex].walls.length; i++) {
-                    if (levelsJSON[levelIndex].walls[i].x2 < player.x - player.size && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
+                    if (levelsJSON[levelIndex].walls[i].x2  < player.x && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
                         let distance = (player.x - player.size) - levelsJSON[levelIndex].walls[i].x2;
+                        distance = distance < 0 ? 0 : distance;
                         dashSize = distance < dashSize ? distance : dashSize;
                     }
                 }
             }
             player.x += dashSize * jumpSide;
             canDash = false;
-            trailTime = DASH_TIME;
+            trailTime = parseInt(DASH_TIME * dashSize / DASH_SIZE);
         }
     }
 });
