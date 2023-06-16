@@ -16,6 +16,10 @@ const DASH_SIZE = 125;
 const DASH_TIME = 7;
 const EFFECT_DISTANCE = 50;
 const DEBUG_MODE = false;
+const WIN_ANIMATION_TIME = 700;
+const WIN_ANIMATION_DELAY = 700;
+const transition_sprite = new Image();
+transition_sprite.src = "../images/GUI/transition.png";
 //#endregion
 
 //#region VARIABLES
@@ -29,6 +33,9 @@ let ended = false;
 
 let deaths = 0;
 let deathAnimation = false;
+let winAnimation = false;
+let winCircleSize = 141;
+let winAnimationStarted = 0;
 
 let levelIndex = 0;
 let trailX = 0;
@@ -152,6 +159,22 @@ function loop() {
         player.y += bottomDis;
         player.velocityY += GRAVITY_FORCE;
     }
+
+    if (player.velocityY < 0) {
+        let wallDistance = Infinity;
+        for (let i = 0; i < levelsJSON[levelIndex].walls.length; i++) {
+            if (levelsJSON[levelIndex].walls[i].x1  < player.x + player.size / 2 &&
+                levelsJSON[levelIndex].walls[i].x2  > player.x - player.size / 2 &&
+                levelsJSON[levelIndex].walls[i].y2  < player.y) {
+                    let distance = (player.y - player.size / 2) - levelsJSON[levelIndex].walls[i].y2;
+                    wallDistance = distance < wallDistance ? distance : wallDistance;
+            }
+        }
+        if (wallDistance < 0) {
+            player.y -= wallDistance;
+            player.velocityY = 0;
+        }
+    }
     //#endregion
 
     //#region ANIMATIONS
@@ -204,20 +227,35 @@ function loop() {
     //#endregion
 
     //#region WIN
-    if (Distance(levelsJSON[levelIndex].end.x, levelsJSON[levelIndex].end.y, player.x, player.y) <= EFFECT_DISTANCE) {
+    if (Distance(levelsJSON[levelIndex].end.x, levelsJSON[levelIndex].end.y, player.x, player.y) <= EFFECT_DISTANCE && !winAnimation) {
         ended = true;
-        levelIndex++;
-        player = {
-            x: levelsJSON[levelIndex].spawn.x,
-            y: levelsJSON[levelIndex].spawn.y,
-            velocityX: 0,
-            velocityY: 0,
-            size: 40,
-            animation: 0
-        };
-        started = false;
-        ended = false;
-        jumpSide = levelsJSON[levelIndex].dir;
+        winAnimation = true;
+        canvas.style.clipPath = `circle(${winCircleSize}% at ${player.x / 10}% ${player.y / 10}%)`;
+        winAnimationStarted = new Date().getTime();
+        player.velocityX = 0;
+        player.animation = 0;
+        setTimeout(() => {
+            levelIndex++;
+            player = {
+                x: levelsJSON[levelIndex].spawn.x,
+                y: levelsJSON[levelIndex].spawn.y,
+                velocityX: 0,
+                velocityY: 0,
+                size: 40,
+                animation: 0
+            };
+            started = false;
+            ended = false;
+            jumpSide = levelsJSON[levelIndex].dir;
+            winAnimation = false;
+        }, WIN_ANIMATION_TIME);
+    }
+    if (winAnimation) {
+        winCircleSize = parseInt(141 * (1 - ((new Date().getTime() - winAnimationStarted) / WIN_ANIMATION_TIME)));
+        canvas.style.clipPath = `circle(${winCircleSize}% at ${player.x / 10}% ${player.y / 10}%)`;
+    } else if (winCircleSize < 141 && new Date().getTime() - (WIN_ANIMATION_TIME + WIN_ANIMATION_DELAY) >= winAnimationStarted) {
+        winCircleSize = parseInt(141 * (((new Date().getTime() - winAnimationStarted - (WIN_ANIMATION_TIME + WIN_ANIMATION_DELAY)) / WIN_ANIMATION_TIME)));
+        canvas.style.clipPath = `circle(${winCircleSize}% at ${player.x / 10}% ${player.y / 10}%)`;
     }
     //#endregion
 
@@ -269,7 +307,7 @@ function loop() {
 
         //player
         ctx.fillStyle = "blue"
-        ctx.fillRect(player.x - 10, player.y - 10, 20, 20); 
+        ctx.fillRect(player.x - player.size/2, player.y - player.size/2, player.size, player.size); 
     }
 
     //#endregion
