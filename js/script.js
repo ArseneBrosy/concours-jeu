@@ -121,7 +121,7 @@ function loop() {
 
     if (gameEnded) {
         document.getElementById("endscreen").classList.add("active");
-        document.getElementById("playerendscreen").src = "../images/player/run/" + (globalAnimationIndex % 6) + ".png";
+        document.getElementById("playerendscreen").src = "./images/player/run/" + (globalAnimationIndex % 6) + ".png";
 
         globalAnimationIndexCounter ++;
         if (globalAnimationIndexCounter >= 5) {
