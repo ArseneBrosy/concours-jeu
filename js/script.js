@@ -18,8 +18,6 @@ const DASH_TIME = 7;
 const EFFECT_DISTANCE = 50;
 const WIN_ANIMATION_TIME = 700;
 const WIN_ANIMATION_DELAY = 700;
-const transition_sprite = new Image();
-transition_sprite.src = "../images/GUI/transition.png";
 //#endregion
 
 //#region VARIABLES
@@ -333,10 +331,10 @@ function loop() {
     // player
     if (trailTime > 0) {
         trailTime --;
-        playerSprite.src = "../images/player/jump_air/0" + (jumpSide == -1 ? "flip" : "") + ".png";
+        playerSprite.src = "./images/player/jump_air/0" + (jumpSide == -1 ? "flip" : "") + ".png";
         ctx.drawImage(playerSprite, trailX + dashSize * (DASH_TIME - trailTime) / DASH_TIME * jumpSide, trailY, player.size, player.size);
     } else {
-        playerSprite.src = "../images/player/" + ANIMATIONS[player.animation].name + "/" + (globalAnimationIndex % ANIMATIONS[player.animation].size) + (jumpSide == -1 ? "flip" : "") + ".png";
+        playerSprite.src = "./images/player/" + ANIMATIONS[player.animation].name + "/" + (globalAnimationIndex % ANIMATIONS[player.animation].size) + (jumpSide == -1 ? "flip" : "") + ".png";
         ctx.drawImage(playerSprite, player.x - player.size / 2, player.y - player.size / 2, player.size, player.size);
     }
 
