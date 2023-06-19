@@ -10,6 +10,7 @@
 <body oncontextmenu="return false;">
     <div id="backcanvas"></div>
     <canvas id="game"></canvas>
+    <img src="images/GUI/logo.png" alt="" id="logo">
     <p id="timer">0:00.0</p>
     <div id="blur">
         <div id="deathtext"><img src="images/GUI/skull.png">
@@ -18,7 +19,14 @@
             </div>
             <div id="deathtexttransparent"></div>
         </div>
-    </div> 
+    </div>
+    <div id="endscreen" class="">
+        <div>
+            <p id="timertextendscreen"><img src="./images/GUI/timer.png"></p>
+            <p id="deathtextendscreen"><img src="./images/GUI/skull.png"></p>
+        </div>
+        <img id="playerendscreen" src="./images/player/run/0.png">
+    </div>
     <!--MAIN SCRIPT-->
     <script src="./js/script.js" type="module"></script>
 </body>

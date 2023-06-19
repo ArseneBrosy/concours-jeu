@@ -31,6 +31,7 @@ let trailTime = 0;
 let dashSize = DASH_SIZE;
 let started = false;
 let ended = false;
+let gameEnded = false;
 let startedTimer = false;
 
 let playerPositions = [];
@@ -119,6 +120,20 @@ function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
 function loop() {
     canvas.width = 1000;
     canvas.height = 1000;
+
+    if (gameEnded) {
+        document.getElementById("endscreen").classList.add("active");
+        document.getElementById("playerendscreen").src = "../images/player/run/" + (globalAnimationIndex % 6) + ".png";
+
+        globalAnimationIndexCounter ++;
+        if (globalAnimationIndexCounter >= 5) {
+            globalAnimationIndexCounter = 0;
+            globalAnimationIndex ++;
+        }
+
+        requestAnimationFrame(loop);
+        return;
+    }
 
     //#region COLLISONS
     let bottomDis = player.velocityY;
@@ -256,6 +271,9 @@ function loop() {
         ended = true;
         if (DEBUG_MODE) {
             levelIndex++;
+            if (levelsJSON.length <= levelIndex) {
+                gameEnded = true;
+            }
             player = {
                 x: levelsJSON[levelIndex].spawn.x,
                 y: levelsJSON[levelIndex].spawn.y,
@@ -274,6 +292,9 @@ function loop() {
             player.animation = 0;
             setTimeout(() => {
                 levelIndex++;
+                if (levelsJSON.length <= levelIndex) {
+                    gameEnded = true;
+                }
                 player = {
                     x: levelsJSON[levelIndex].spawn.x,
                     y: levelsJSON[levelIndex].spawn.y,
@@ -325,8 +346,13 @@ function loop() {
         let minutes = parseInt(gameTime / 60000);
         let seconds = parseInt(gameTime / 1000) % 60;
         let decimals = parseInt(gameTime / 100) % 10;
+        let decimalsPrecise = parseInt(gameTime / 10) % 100;
         document.getElementById("timer").innerHTML = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${decimals}`
+        document.getElementById("timertextendscreen").innerHTML = `<img src="./images/GUI/timer.png">${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${decimalsPrecise}`
     }
+
+    // death
+    document.getElementById("deathtextendscreen").innerHTML = "<img src='./images/GUI/skull.png'>" + deaths;
 
     if (DEBUG_MODE) {
         // player
@@ -390,6 +416,7 @@ document.addEventListener("keydown", (e) => {
         if (!startedTimer) {
             gameStarted = new Date().getTime();
             startedTimer = true;
+            document.getElementById("logo").classList.add("quited");
         }
         if (canJump) {
             if (player.velocityX === 0) {
