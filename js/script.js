@@ -1,7 +1,7 @@
 // Jeu de tir
 // by Arsène Brosy
 import levelsJSON from "../json/levels.json" assert {type: "json"};
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 let canvas = document.getElementById("game");
 let ctx = canvas.getContext("2d");
@@ -31,6 +31,9 @@ let trailTime = 0;
 let dashSize = DASH_SIZE;
 let started = false;
 let ended = false;
+let startedTimer = false;
+
+let playerPositions = [];
 
 let deaths = 0;
 let deathAnimation = false;
@@ -38,7 +41,7 @@ let winAnimation = false;
 let winCircleSize = 141;
 let winAnimationStarted = 0;
 
-let levelIndex = 7;
+let levelIndex = 0;
 let trailX = 0;
 let trailY = 0;
 
@@ -165,7 +168,7 @@ function loop() {
     //#endregion
 
     //#region MOVE PLAYER
-    if (trailTime === 0 && !ended && !winAnimation && !deathAnimation) {
+    if (trailTime === 0 && !ended) {
         player.x += player.velocityX;
         player.y += bottomDis;
         player.velocityY += GRAVITY_FORCE;
@@ -199,7 +202,7 @@ function loop() {
     //#endregion
 
     //#region DEATH
-    if ((player.y > 1000 || player.y < 0 || player.x > 1000 || player.x < 0) && !deathAnimation) {
+    if ((player.y > 1000 || player.y < 0 || player.x > 1000 || player.x < 0) && !deathAnimation && !winAnimation) {
         deaths ++;
         if (DEBUG_MODE) {
             player = {
@@ -330,6 +333,11 @@ function loop() {
         ctx.fillStyle = "red";
         ctx.lineWidth = 5;
 
+        playerPositions.push([player.x, player.y]);
+        for (let i = 0; i < playerPositions.length; i++) {
+            ctx.fillRect(playerPositions[i][0]-2, playerPositions[i][1]-2, 4, 4);
+        }
+
         // grid
         ctx.fillStyle = "grey";
         for (let i = 0; i <= canvas.width; i+= 50) {
@@ -379,6 +387,10 @@ function loop() {
 
 document.addEventListener("keydown", (e) => {
     if (e.code === "Space" && !deathAnimation) {
+        if (!startedTimer) {
+            gameStarted = new Date().getTime();
+            startedTimer = true;
+        }
         if (canJump) {
             if (player.velocityX === 0) {
                 player.velocityX = PLAYER_SPEED * jumpSide;
@@ -391,7 +403,7 @@ document.addEventListener("keydown", (e) => {
                 globalAnimationIndex = 0;
             } else {
                 started = true;
-                gameStarted = new Date().getTime();
+                playerPositions = [];
             }
         } else if (canDash) {
             trailX = player.x - player.size/2;
