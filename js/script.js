@@ -40,7 +40,7 @@ let winAnimation = false;
 let winCircleSize = 141;
 let winAnimationStarted = 0;
 
-let levelIndex = 0;
+let levelIndex = 9;
 let trailX = 0;
 let trailY = 0;
 
