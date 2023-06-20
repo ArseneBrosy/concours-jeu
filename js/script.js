@@ -21,6 +21,7 @@ const WIN_ANIMATION_DELAY = 700;
 //#endregion
 
 //#region VARIABLES
+let hardcoreMode = true;
 let gameStarted = 0;
 let canJump = false;
 let canDash = false;
@@ -218,6 +219,11 @@ function loop() {
     if ((player.y > 1000 || player.y < 0 || player.x > 1000 || player.x < 0) && !deathAnimation && !winAnimation) {
         deaths ++;
         if (DEBUG_MODE) {
+            if (hardcoreMode) {
+                levelIndex = 0;
+                deaths = 0;
+                startedTimer = false;
+            }
             player = {
                 x: levelsJSON[levelIndex].spawn.x,
                 y: levelsJSON[levelIndex].spawn.y,
@@ -240,6 +246,11 @@ function loop() {
             setTimeout(() => {
                 document.getElementById("blur").classList.remove("active");
                 deathAnimation = false;
+                if (hardcoreMode) {
+                    levelIndex = 0;
+                    deaths = 0;
+                    startedTimer = false;
+                }
                 player = {
                     x: levelsJSON[levelIndex].spawn.x,
                     y: levelsJSON[levelIndex].spawn.y,
@@ -339,7 +350,7 @@ function loop() {
     }
 
     // timer
-    if (gameStarted > 0) {
+    if (startedTimer) {
         let gameTime = new Date().getTime() - gameStarted;
         let minutes = parseInt(gameTime / 60000);
         let seconds = parseInt(gameTime / 1000) % 60;
@@ -347,6 +358,8 @@ function loop() {
         let decimalsPrecise = parseInt(gameTime / 10) % 100;
         document.getElementById("timer").innerHTML = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${decimals}`
         document.getElementById("timertextendscreen").innerHTML = `<img src="./images/GUI/timer.png">${minutes}:${seconds < 10 ? "0" : ""}${seconds}.${decimalsPrecise}`
+    } else {
+        document.getElementById("timer").innerHTML = `0:00.0`
     }
 
     // death
