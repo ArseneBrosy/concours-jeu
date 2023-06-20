@@ -23,7 +23,6 @@ body {
 canvas {
     height: 95%;
     aspect-ratio: 1;
-    border: 1px solid black;
 }
 
 #backcanvas {
@@ -179,4 +178,44 @@ canvas {
     aspect-ratio: 1;
     height: 30vh;
     bottom: 10vh;
+}
+
+@media screen and (orientation:portrait) {
+    canvas, #backcanvas, #blur, #timer, #endscreen {
+        height: 95vw;
+    }
+
+    #timer {
+        font-size: 6vw;
+    }
+
+    #logo {
+        width: 50vw;
+        top: 50%;
+        transform: translateY(-35vw);
+    }
+
+    @keyframes logo-quit {
+        from {
+            top: 50%;
+        }
+        to {
+            top: 0;
+        }
+    }
+}
+
+#harcoremode {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    font-size: 3vh;
+    color: white;
+    bottom: 3vh;
+}
+
+#harcoremode img {
+    margin-right:2vh;
+    height: 4vh;
+    aspect-ratio: 1;
 }

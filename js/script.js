@@ -21,7 +21,7 @@ const WIN_ANIMATION_DELAY = 700;
 //#endregion
 
 //#region VARIABLES
-let hardcoreMode = true;
+let hardcoreMode = false;
 let gameStarted = 0;
 let canJump = false;
 let canDash = false;
@@ -339,6 +339,9 @@ function loop() {
     background.src = "./images/levels/level" + levelIndex + ".png";
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
+    // hardcore mode
+    document.getElementById("harcoremode").style.display = startedTimer ? "none" : "flex";
+
     // player
     if (trailTime > 0) {
         trailTime --;
@@ -424,6 +427,59 @@ function loop() {
 
 document.addEventListener("keydown", (e) => {
     if (e.code === "Space" && !deathAnimation) {
+        if (!startedTimer) {
+            gameStarted = new Date().getTime();
+            startedTimer = true;
+            document.getElementById("logo").classList.add("quited");
+        }
+        if (canJump) {
+            if (player.velocityX === 0) {
+                player.velocityX = PLAYER_SPEED * jumpSide;
+                player.animation = 1;
+                globalAnimationIndex = 0;
+            }
+            if (started) {
+                player.velocityY = -JUMP_FORCE;
+                player.animation = 2;
+                globalAnimationIndex = 0;
+            } else {
+                started = true;
+                playerPositions = [];
+            }
+        } else if (canDash) {
+            trailX = player.x - player.size/2;
+            trailY = player.y - player.size/2;
+            dashSize = DASH_SIZE;
+            if (jumpSide === 1) {
+                for (let i = 0; i < levelsJSON[levelIndex].walls.length; i++) {
+                    if (levelsJSON[levelIndex].walls[i].x1 > player.x && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
+                        let distance = levelsJSON[levelIndex].walls[i].x1 - (player.x + player.size);
+                        distance = distance < 0 ? 0 : distance;
+                        dashSize = distance < dashSize ? distance : dashSize;
+                    }
+                }
+            } else {
+                for (let i = 0; i < levelsJSON[levelIndex].walls.length; i++) {
+                    if (levelsJSON[levelIndex].walls[i].x2  < player.x && levelsJSON[levelIndex].walls[i].y1 < player.y + player.size / 2 && levelsJSON[levelIndex].walls[i].y2 > player.y - player.size / 2) {
+                        let distance = (player.x - player.size) - levelsJSON[levelIndex].walls[i].x2;
+                        distance = distance < 0 ? 0 : distance;
+                        dashSize = distance < dashSize ? distance : dashSize;
+                    }
+                }
+            }
+            player.x += dashSize * jumpSide;
+            canDash = false;
+            trailTime = parseInt(DASH_TIME * dashSize / DASH_SIZE);
+        }
+    }
+    if (e.code === "KeyX" && !startedTimer) {
+        hardcoreMode = !hardcoreMode;
+        document.getElementById("harcoremode").innerHTML = `<img src="images/GUI/X.png">hardcore mode: ${hardcoreMode ? "on" : "off"}`;
+    }
+});
+
+document.addEventListener("touchstart", () => {
+    if (!deathAnimation) {
         if (!startedTimer) {
             gameStarted = new Date().getTime();
             startedTimer = true;
