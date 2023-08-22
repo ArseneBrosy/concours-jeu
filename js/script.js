@@ -9,6 +9,24 @@ let ctx = canvas.getContext("2d");
 let playerSprite = new Image();
 playerSprite.src = "./images/player/run/tile0.png"
 
+//#region FIREBASE
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDIOahi3ZGMTaknRbtRbixnQvae6rIZmcA",
+  authDomain: "the-runner-f8249.firebaseapp.com",
+  projectId: "the-runner-f8249",
+  storageBucket: "the-runner-f8249.appspot.com",
+  messagingSenderId: "260235442636",
+  appId: "1:260235442636:web:c9d0c798fca39e6faa0569"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+//#endregion
+
 //#region CONSTANTES
 const PLAYER_SPEED = 6;
 const JUMP_FORCE = 10;
